@@ -10,6 +10,7 @@ import (
 
 	"github.com/bitfield/script"
 	"github.com/spf13/cobra"
+	"gov.gsa.fac.cgov-util/internal/environments"
 	"gov.gsa.fac.cgov-util/internal/logging"
 	"gov.gsa.fac.cgov-util/internal/pipes"
 	"gov.gsa.fac.cgov-util/internal/structs"
@@ -122,9 +123,9 @@ var S3toDBCmd = &cobra.Command{
 		}
 
 		switch os.Getenv("ENV") {
-		case "LOCAL":
+		case environments.LOCAL:
 			fallthrough
-		case "TESTING":
+		case environments.TESTING:
 			bucket_creds, err := vcap.VCS.GetCredentials("user-provided", path_struct.Bucket)
 			if err != nil {
 				logging.Logger.Printf("S3TODB could not get minio credentials")
@@ -133,13 +134,13 @@ var S3toDBCmd = &cobra.Command{
 			bucket_to_local_tables(db_creds, bucket_creds, path_struct)
 			os.Remove("pg_dump_tables")
 			logging.Logger.Println("Finished Restore and cleaning residual files/folders.")
-		case "DEV":
+		case environments.DEVELOPMENT:
 			fallthrough
-		case "STAGING":
+		case environments.PREVIEW:
 			fallthrough
-		case "PREVIEW":
+		case environments.STAGING:
 			fallthrough
-		case "PRODUCTION":
+		case environments.PRODUCTION:
 			bucket_creds, err := vcap.VCS.GetCredentials("s3", path_struct.Bucket)
 			if err != nil {
 				logging.Logger.Printf("S3toDB could not get s3 credentials")

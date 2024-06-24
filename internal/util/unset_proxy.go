@@ -4,11 +4,12 @@ import (
 	"os"
 	"slices"
 
+	"gov.gsa.fac.cgov-util/internal/environments"
 	"gov.gsa.fac.cgov-util/internal/logging"
 )
 
 func UnsetProxy() {
-	if slices.Contains([]string{"DEV", "PREVIEW", "STAGING", "PRODUCTION"}, os.Getenv("ENV")) {
+	if slices.Contains([]string{environments.DEVELOPMENT, environments.PREVIEW, environments.STAGING, environments.PRODUCTION}, os.Getenv("ENV")) {
 		if IsDebugLevel("DEBUG") {
 			logging.Logger.Println("Proxy:", os.Getenv("https_proxy"))
 		}

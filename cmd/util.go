@@ -5,6 +5,7 @@ import (
 	"os"
 	"path"
 
+	"gov.gsa.fac.cgov-util/internal/environments"
 	"gov.gsa.fac.cgov-util/internal/logging"
 	"gov.gsa.fac.cgov-util/internal/structs"
 	"gov.gsa.fac.cgov-util/internal/vcap"
@@ -33,17 +34,17 @@ func parseS3Path(s3_path string) *structs.S3Path {
 
 func runLocalOrRemote(funs structs.Choice) {
 	switch os.Getenv("ENV") {
-	case "LOCAL":
+	case environments.LOCAL:
 		fallthrough
-	case "TESTING":
+	case environments.TESTING:
 		funs.Local()
-	case "DEVELOPMENT":
+	case environments.DEVELOPMENT:
 		fallthrough
-	case "STAGING":
+	case environments.PREVIEW:
 		fallthrough
-	case "PREVIEW":
+	case environments.STAGING:
 		fallthrough
-	case "PRODUCTION":
+	case environments.PRODUCTION:
 		funs.Remote()
 	default:
 		logging.Logger.Printf("LOCALORREMOTE impossible condition")
@@ -63,22 +64,22 @@ func getDBCredentials(db_name string) vcap.Credentials {
 
 func getBucketCredentials(s3path *structs.S3Path) vcap.Credentials {
 	switch os.Getenv("ENV") {
-	case "LOCAL":
+	case environments.LOCAL:
 		fallthrough
-	case "TESTING":
+	case environments.TESTING:
 		bucket_creds, err := vcap.VCS.GetCredentials("user-provided", s3path.Bucket)
 		if err != nil {
 			logging.Logger.Printf("GetCredentials could not get minio credentials: %s", s3path)
 			os.Exit(logging.COULD_NOT_FIND_CREDENTIALS)
 		}
 		return bucket_creds
-	case "DEV":
+	case environments.DEVELOPMENT:
 		fallthrough
-	case "STAGING":
+	case environments.PREVIEW:
 		fallthrough
-	case "PREVIEW":
+	case environments.STAGING:
 		fallthrough
-	case "PRODUCTION":
+	case environments.PRODUCTION:
 		bucket_creds, err := vcap.VCS.GetCredentials("s3", s3path.Bucket)
 		if err != nil {
 			logging.Logger.Printf("DBTOS3 could not get s3 credentials")

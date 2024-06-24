@@ -3,6 +3,7 @@ package util
 import (
 	"os"
 
+	"gov.gsa.fac.cgov-util/internal/environments"
 	"gov.gsa.fac.cgov-util/internal/logging"
 )
 
@@ -13,20 +14,20 @@ var PSQL_path = "NO PATH SET"
 
 func SetPaths(env string) {
 	switch env {
-	case "LOCAL":
+	case environments.LOCAL:
 		fallthrough
-	case "TESTING":
+	case environments.TESTING:
 		AWS_path = "aws"
 		PGDUMP_path = "pg_dump"
 		PGRESTORE_path = "pg_restore"
 		PSQL_path = "psql"
-	case "DEV":
+	case environments.DEVELOPMENT:
 		fallthrough
-	case "STAGING":
+	case environments.PREVIEW:
 		fallthrough
-	case "PREVIEW":
+	case environments.STAGING:
 		fallthrough
-	case "PRODUCTION":
+	case environments.PRODUCTION:
 		AWS_path = "/home/vcap/app/bin/aws"
 		PGDUMP_path = "/home/vcap/deps/0/apt/usr/lib/postgresql/15/bin/pg_dump"
 		PGRESTORE_path = "/home/vcap/deps/0/apt/usr/lib/postgresql/15/bin/pg_restore"
