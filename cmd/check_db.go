@@ -65,13 +65,13 @@ func check_if_table_exists(source_creds vcap.Credentials) {
 		}
 	}
 	if len(not_existing) > 0 {
-		logging.Error.Println("A list of tables that does not exist in the database, but does exist in a manifest has been returned.")
+		logging.Error.Println("CHECKTABLESFAIL : A list of tables that does not exist in the database, but does exist in a manifest has been returned.")
 		logging.Error.Println("System exiting...")
 		joined_tables := strings.Join(not_existing[:], " ")
 		logging.Error.Printf("DBMISSINGTABLES " + joined_tables)
 		os.Exit(logging.DB_MISSING_TABLES)
 	} else {
-		logging.Status.Printf("Manifest and Database tables appear to be in sync for database: " + source_database)
+		logging.Status.Printf("CHECKTABLESPASS : Manifest and Database tables appear to be in sync for database: " + source_database)
 	}
 
 	if err := scanner.Err(); err != nil {
