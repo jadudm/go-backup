@@ -48,6 +48,7 @@ func InstallAWS() {
 	// unzip awscliv2.zip && rm awscliv2.zip
 	unzipaws := []string{
 		"unzip",
+		"-q",
 		"awscliv2.zip",
 		"&&",
 		"rm",
