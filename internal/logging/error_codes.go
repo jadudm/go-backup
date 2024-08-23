@@ -12,3 +12,5 @@ const DB_DROP_ERROR = -42
 
 const DB_MISSING_TABLES = -50
 const PROTECTED_DATABASE = -51
+
+const ROW_COUNT_ERROR = -60

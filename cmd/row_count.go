@@ -7,7 +7,6 @@ import (
 	"bufio"
 	"database/sql"
 	"fmt"
-	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -31,7 +30,8 @@ func check_rows_in_db(source_creds vcap.Credentials) {
 	file, err := f.ReadFile("assets/db_tables.txt")
 	//print(string(file))
 	if err != nil {
-		log.Fatal(err)
+		logging.Error.Println(err)
+		os.Exit(logging.ROW_COUNT_ERROR)
 	}
 	scanner := bufio.NewScanner(strings.NewReader(string(file)))
 	var row_count_for_tables []string
@@ -39,14 +39,16 @@ func check_rows_in_db(source_creds vcap.Credentials) {
 		query := fmt.Sprintf("SELECT count(*) FROM %s;", scanner.Text())
 		rows, err := db.Query(query)
 		if err != nil {
-			log.Fatal(err)
+			logging.Error.Println(err)
+			os.Exit(logging.ROW_COUNT_ERROR)
 		}
 		defer rows.Close()
 		var count int
 		// Reference: https://stackoverflow.com/a/49400697
 		for rows.Next() {
 			if err := rows.Scan(&count); err != nil {
-				log.Fatal(err)
+				logging.Error.Println(err)
+				os.Exit(logging.ROW_COUNT_ERROR)
 			}
 		}
 		// Output to stdout on each line for debugging purposes
@@ -59,7 +61,7 @@ func check_rows_in_db(source_creds vcap.Credentials) {
 	joined_tables := strings.Join(row_count_for_tables[:], "\n")
 	logging.Logger.Printf("TABLEROWCOUNT\n" + joined_tables)
 	if err := scanner.Err(); err != nil {
-		log.Fatal(err)
+		logging.Error.Println(err)
 	}
 }
 
