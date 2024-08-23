@@ -65,6 +65,10 @@ func parseFlags(cmd_name string, cmd *cobra.Command) {
 		fmt.Println("RUNNING DROP FLAGS")
 		cmd.Flags().StringVarP(&target_db, "db", "", "", "target database name")
 		cmd.Flags().StringSliceVarP(&drop, "drop", "", []string{}, "tables to drop before backup")
+	case "row_count":
+		fmt.Println("RUNNING ROW_COUNT FLAGS")
+		cmd.Flags().StringVarP(&row_count_db, "db", "", "", "database name")
+		cmd.MarkFlagRequired("row_count_db")
 	default:
 		fmt.Printf("NO FLAGS PROCESSED")
 	}
