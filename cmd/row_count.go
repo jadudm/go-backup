@@ -6,8 +6,10 @@ package cmd
 import (
 	"bufio"
 	"database/sql"
+	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -32,26 +34,30 @@ func check_rows_in_db(source_creds vcap.Credentials) {
 		log.Fatal(err)
 	}
 	scanner := bufio.NewScanner(strings.NewReader(string(file)))
-	//var row_count_for_tables []string
-	var count int
+	var row_count_for_tables []string
 	for scanner.Scan() {
-		//scanner.Text()
-		//query := fmt.Sprintf("SELECT count(*) FROM %s;", scanner.Text())
-		db.QueryRow("SELECT count(*) FROM %s", scanner.Text()).Scan(&count)
-		//rows, row_count := db.Query(query)
-
-		//logging.Status.Printf("Row count for table %s: %s", scanner.Text(), row_count)
-		//db.QueryRow("SELECT count(*) FROM %s", scanner.Text()).Scan(&counter)
-		//fmt.Sprintf("%s%s/%s-%s.dump", s3path.Bucket, s3path.Key, schema, table)
-		logging.Logger.Printf("Table: %s | Row Count: %d", scanner.Text(), count)
-		//"Table: %s", counter, "rows"
-
-		//row_count_for_tables = append(row_count_for_tables, scanner.Text(), row_count)
-		//rows.Close()
+		query := fmt.Sprintf("SELECT count(*) FROM %s;", scanner.Text())
+		rows, err := db.Query(query)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer rows.Close()
+		var count int
+		// Reference: https://stackoverflow.com/a/49400697
+		for rows.Next() {
+			if err := rows.Scan(&count); err != nil {
+				log.Fatal(err)
+			}
+		}
+		// Output to stdout on each line for debugging purposes
+		// logging.Logger.Printf(fmt.Sprintf("Table: %s | Row Count: %d\n", scanner.Text(), count))
+		r := strconv.Itoa(count)
+		// Store in row_count_for_tables []string
+		row_count_for_tables = append(row_count_for_tables, "Table: "+scanner.Text()+" | Rows: "+r)
 	}
-	// logging.Logger.Println("Row count for tables in manifest...")
-	// joined_tables := strings.Join(row_count_for_tables[:], " ")
-	// logging.Logger.Printf("TABLEROWCOUNT " + joined_tables)
+	logging.Logger.Println("Row count for tables in manifest...")
+	joined_tables := strings.Join(row_count_for_tables[:], "\n")
+	logging.Logger.Printf("TABLEROWCOUNT\n" + joined_tables)
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
 	}
