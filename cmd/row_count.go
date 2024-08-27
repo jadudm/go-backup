@@ -44,7 +44,6 @@ func check_rows_in_db(source_creds vcap.Credentials) {
 		}
 		defer rows.Close()
 		var count int
-		// Reference: https://stackoverflow.com/a/49400697
 		for rows.Next() {
 			if err := rows.Scan(&count); err != nil {
 				logging.Error.Println(err)
