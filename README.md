@@ -103,3 +103,13 @@ tar -xvf gov.gsa.fac.cgov-util-vX.Y.ZZ-linux-amd64.tar.gz && rm gov.gsa.fac.cgov
 ```
 ./gov.gsa.fac.cgov-util db_to_db --src_db <src-db-name> --dest_db <dest-db-name>
 ```
+
+- Check db for missing tables, based on the [manifest](./cmd/assets/db_tables.txt)
+```
+./gov.gsa.fac.cgov-util check_db --db <db-name>
+```
+
+- Check row count for a table existing in the db, based on the [manifest](./cmd/assets/db_tables.txt)
+```
+./gov.gsa.fac.cgov-util row_count --db <db-name>
+```

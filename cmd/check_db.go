@@ -61,14 +61,14 @@ func check_if_table_exists(source_creds vcap.Credentials) {
 			// store all scanner.Text() into a map
 			// if map != nil
 			// hard exit
-			not_existing = append(not_existing, scanner.Text())
+			not_existing = append(not_existing, "Missing Table: "+scanner.Text())
 		}
 	}
 	if len(not_existing) > 0 {
 		logging.Error.Println("CHECKTABLESFAIL : A list of tables that does not exist in the database, but does exist in a manifest has been returned.")
 		logging.Error.Println("System exiting...")
-		joined_tables := strings.Join(not_existing[:], " ")
-		logging.Error.Printf("DBMISSINGTABLES " + joined_tables)
+		joined_tables := strings.Join(not_existing[:], "\n")
+		logging.Error.Printf("DBMISSINGTABLES \n" + joined_tables)
 		os.Exit(logging.DB_MISSING_TABLES)
 	} else {
 		logging.Status.Printf("CHECKTABLESPASS : Manifest and Database tables appear to be in sync for database: " + source_database)
@@ -82,8 +82,8 @@ func check_if_table_exists(source_creds vcap.Credentials) {
 // checkDbCmd represents the checkDb command
 var checkDbCmd = &cobra.Command{
 	Use:   "check_db",
-	Short: "A brief description of your command",
-	Long:  `A`,
+	Short: "Check the database against the manifest and determine if there are any missing tables.",
+	Long:  `Check the database against the manifest and determine if there are any missing tables.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		db_creds := getDBCredentials(source_database)
 		//stringInSlice(table, list_of_tables)
