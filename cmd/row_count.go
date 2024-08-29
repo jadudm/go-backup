@@ -6,6 +6,7 @@ package cmd
 import (
 	"bufio"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"os"
 	"strconv"
@@ -19,6 +20,15 @@ import (
 var (
 	row_count_db string
 )
+
+type RowCount struct {
+	Table string `json:"Table"`
+	Rows  string `json:"Rows"`
+}
+
+type connection struct {
+	RowsCountConnection []*RowCount `json:"TABLEROWCOUNT"`
+}
 
 func check_rows_in_db(source_creds vcap.Credentials) {
 	db, err := sql.Open("postgres", source_creds.Get("uri").String())
@@ -54,11 +64,29 @@ func check_rows_in_db(source_creds vcap.Credentials) {
 		// logging.Logger.Printf(fmt.Sprintf("Table: %s | Row Count: %d\n", scanner.Text(), count))
 		r := strconv.Itoa(count)
 		// Store in row_count_for_tables []string
-		row_count_for_tables = append(row_count_for_tables, "Table: "+scanner.Text()+" | Rows: "+r)
+		row_count_for_tables = append(row_count_for_tables, scanner.Text()+" "+r)
 	}
-	logging.Logger.Println("Row count for tables in manifest...")
+
+	logging.Logger.Printf("Row count for tables in manifest...")
+
 	joined_tables := strings.Join(row_count_for_tables[:], "\n")
-	logging.Logger.Printf("TABLEROWCOUNT\n" + joined_tables)
+	//logging.Logger.Printf("TABLEROWCOUNT " + joined_tables)
+
+	var rows []*RowCount
+	for _, joined_tables := range strings.Split(joined_tables, "\n") {
+		if joined_tables != "" {
+			s := strings.Split(joined_tables, " ")
+			rows = append(rows, &RowCount{Table: s[0], Rows: s[1]})
+		}
+	}
+
+	// Raw json object of {"Table":"table_name","Rows":"#"}
+	raw, _ := json.Marshal(connection{RowsCountConnection: rows})
+	logging.Logger.Printf("%s", raw)
+	// PrettyPrint json object of {"Table":"table_name","Rows":"#"}
+	//pretty, _ := json.MarshalIndent(connection{RowsCountConnection: rows}, "", "    ")
+	//logging.Logger.Printf("%s\n", pretty)
+
 	if err := scanner.Err(); err != nil {
 		logging.Error.Println(err)
 	}
